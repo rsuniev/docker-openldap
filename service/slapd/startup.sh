@@ -210,7 +210,7 @@ EOF
       log-helper debug "Processing file ${f}"
       sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $f
       sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $f
-      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $f 2>&1 | log-helper debug
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $f 2>&1 | log-helper info
     done
 
     # read only user
