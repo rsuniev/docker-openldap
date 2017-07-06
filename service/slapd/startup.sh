@@ -5,8 +5,6 @@ set -o pipefail
 # https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/log-helper
 log-helper level eq trace && set -x
 
-cp -a /tmp/ldif/. /container/service/slapd/assets/config/bootstrap/ldif/
-
 # Reduce maximum number of number of open file descriptors to 1024
 # otherwise slapd consumes two orders of magnitude more of RAM
 # see https://github.com/docker/docker/issues/8231
@@ -201,7 +199,13 @@ EOF
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files (*.ldif) in bootstrap directory (do no process files in subdirectories)
+    log-helper info "Copy bootstrap ldif from volume ..."
+
+    mkdir -p /container/service/slapd/assets/config/bootstrap/ldif/
+    cp -a /tmp/ldif/. /container/service/slapd/assets/config/bootstrap/ldif/
+
     log-helper info "Add bootstrap ldif..."
+
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
       log-helper debug "Processing file ${f}"
       sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $f
@@ -396,5 +400,4 @@ ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
 ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
 echo "0.0.0.0 $HOSTNAME" > /etc/hosts
 echo "$ETC_HOSTS" >> /etc/hosts
-
 exit 0
